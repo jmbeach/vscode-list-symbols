@@ -1,5 +1,7 @@
 # List Symbols
 
+![List Symbols Icon](src/assets/icon.png)
+
 This extension will list all symbols in a code file as plain text using vscode's built-in symbol processing capabilites.
 
 Simply run `ctrl + shift + p` -> `List Symbols`
@@ -26,4 +28,8 @@ class Calculator
 		property maximumFractionDigits
 		variable stringNumber
 	method updateDisplay
-  ```
+```
+
+## List All Symbols in Folder
+
+Also, you can right click a folder and select `List All Symbols in Folder` to get a combined output of all of the files in that folder.

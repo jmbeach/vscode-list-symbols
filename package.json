@@ -2,7 +2,7 @@
 	"name": "list-symbols",
 	"displayName": "list-symbols",
 	"description": "List symbols (or outline) in a code file as plain text",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "jmbeach",
 	"repository": "https://github.com/jmbeach/vscode-list-symbols",
 	"icon": "src/assets/icon.png",

@@ -46,19 +46,23 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.findFiles(`${folderPath}/**`, undefined, undefined).then(uris => {
       const promises = [];
       for (const uri of uris) {
-        const p = new Promise<{ symbols: vscode.DocumentSymbol[], fileUri: vscode.Uri}>((resolve) => {
+        const p = new Promise<{ symbols: vscode.DocumentSymbol[], fileUri: vscode.Uri} | undefined>((resolve) => {
           (vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri) as Thenable<vscode.DocumentSymbol[]>).then(symbols => {
+            if (!symbols) resolve(undefined);
             resolve({
               fileUri: uri,
               symbols
             });
+          }, _ => {
+            resolve(undefined);
           });
         });
         promises.push(p);
       }
       Promise.all(promises).then(allSymbols => {
         let fullText = '';
-        for (const fileSymbols of allSymbols) {
+        const filtered = allSymbols.filter(s => typeof s !== 'undefined') as { symbols: vscode.DocumentSymbol[]; fileUri: vscode.Uri; }[];
+        for (const fileSymbols of filtered) {
           fullText += `${getRelativeFilePath(fileSymbols.fileUri)}\n---\n`;
           fullText += processNodes(fileSymbols.symbols, 0);
           fullText += '\n';

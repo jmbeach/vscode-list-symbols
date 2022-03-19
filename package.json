@@ -13,7 +13,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.listSymbols"
+		"onCommand:extension.listSymbols",
+		"onCommand:extension.listAllSymbolsInFolder"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -21,8 +22,26 @@
 			{
 				"command": "extension.listSymbols",
 				"title": "List Symbols"
+			},
+			{
+				"command": "extension.listAllSymbolsInFolder",
+				"title": "List All Symbols in Folder"
 			}
-		]
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "extension.listAllSymbolsInFolder",
+					"when": "explorerResourceIsFolder"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "extension.listAllSymbolsInFolder",
+					"when": "false"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

@@ -1,8 +1,8 @@
-# List Symbols
+# List Symbols [![Visual Studio Marketplace Installs - Azure DevOps Extension](https://img.shields.io/visual-studio-marketplace/azure-devops/installs/total/jmbeach.list-symbols)](https://marketplace.visualstudio.com/items?itemName=jmbeach.list-symbols) [![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/jmbeach.list-symbols)](https://marketplace.visualstudio.com/items?itemName=jmbeach.list-symbols)
 
 ![List Symbols Icon](src/assets/icon.png)
 
-This extension will list all symbols in a code file as plain text using vscode's built-in symbol processing capabilites.
+This extension will list all symbols in a code file as plain text using vscode's built-in symbol processing capabilities.
 
 Simply run `ctrl + shift + p` -> `List Symbols`
 

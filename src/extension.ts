@@ -1,13 +1,17 @@
 import * as vscode from 'vscode';
 import SymbolKinds from './SymbolKinds';
 
-function processNodes(symbols: vscode.DocumentSymbol[], depth: number): string {
+function processNodes(symbols: vscode.DocumentSymbol[], depth: number, lines: string[]): string {
   let result = '';
   for (const symbol of symbols) {
     const tabs = [...new Array(depth)].reduce((a, b) => a + '\t', '');
-    result += `${tabs}${SymbolKinds[symbol.kind]} ${symbol.name}\n`;
+    const privateReg = /\bprivate\b/;
+    const publicReg = /\bpublic\b/;
+    const line = lines[symbol.selectionRange.start.line];
+    const privacy = privateReg.exec(line) ? 'private ' : publicReg.exec(line) ? 'public ' : '';
+    result += `${tabs}${privacy}${SymbolKinds[symbol.kind]} ${symbol.name}\n`;
     if (symbol.children) {
-      result += processNodes(symbol.children, depth + 1);
+      result += processNodes(symbol.children, depth + 1, lines);
     }
   }
 
@@ -30,9 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
+    const fileLines = vscode.window.activeTextEditor.document.getText().split('\n');
+
     (vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', vscode.Uri.file(vscode.window.activeTextEditor.document.fileName)) as Thenable<vscode.DocumentSymbol[]>)
       .then((symbols: vscode.DocumentSymbol[]) => {
-        const text = processNodes(symbols, 0);
+        const text = processNodes(symbols, 0, fileLines);
         vscode.workspace.openTextDocument({ content: text }).then(doc => {
           vscode.window.showTextDocument(doc);
         });
@@ -46,25 +52,29 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.findFiles(`${folderPath}/**`, undefined, undefined).then(uris => {
       const promises = [];
       for (const uri of uris) {
-        const p = new Promise<{ symbols: vscode.DocumentSymbol[], fileUri: vscode.Uri} | undefined>((resolve) => {
-          (vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri) as Thenable<vscode.DocumentSymbol[]>).then(symbols => {
-            if (!symbols) resolve(undefined);
-            resolve({
-              fileUri: uri,
-              symbols
+        const p = new Promise<{ symbols: vscode.DocumentSymbol[], fileUri: vscode.Uri, fileText: string } | undefined>((resolve) => {
+          vscode.workspace.openTextDocument(uri).then(document => {
+            const fileText = document.getText();
+            (vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri) as Thenable<vscode.DocumentSymbol[]>).then(symbols => {
+              if (!symbols) resolve(undefined);
+              resolve({
+                fileText,
+                fileUri: uri,
+                symbols
+              });
+            }, _ => {
+              resolve(undefined);
             });
-          }, _ => {
-            resolve(undefined);
           });
         });
         promises.push(p);
       }
       Promise.all(promises).then(allSymbols => {
         let fullText = '';
-        const filtered = allSymbols.filter(s => typeof s !== 'undefined') as { symbols: vscode.DocumentSymbol[]; fileUri: vscode.Uri; }[];
+        const filtered = allSymbols.filter(s => typeof s !== 'undefined') as { symbols: vscode.DocumentSymbol[]; fileUri: vscode.Uri; fileText: string; }[];
         for (const fileSymbols of filtered) {
           fullText += `${getRelativeFilePath(fileSymbols.fileUri)}\n---\n`;
-          fullText += processNodes(fileSymbols.symbols, 0);
+          fullText += processNodes(fileSymbols.symbols, 0, fileSymbols.fileText.split('\n'));
           fullText += '\n';
         }
 

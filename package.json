@@ -2,7 +2,7 @@
 	"name": "list-symbols",
 	"displayName": "list-symbols",
 	"description": "List symbols (or outline) in a code file as plain text",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"publisher": "jmbeach",
 	"repository": "https://github.com/jmbeach/vscode-list-symbols",
 	"icon": "src/assets/icon.png",
@@ -47,7 +47,8 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"lint": "eslint . --ext .ts,.tsx",
-		"watch": "tsc -watch -p ./"
+		"watch": "tsc -watch -p ./",
+		"publish": "vsce package && vsce publish"
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
